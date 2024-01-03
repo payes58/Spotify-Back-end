@@ -9,7 +9,7 @@ const passwordComplexity = require("joi-password.complexity");
         email:{type:String,required: true },
         fecha_nacimiento:{type:String,required: true },
         pais:{type:String,required: true },
-        codigo_postal:{type:String,required: true },
+        codigo_postal:{type:Number,required: true },
         sexo:{type:String,required: true },
         canciones_favoritas:{type:[String], default: []},
         playlist:{type:[String], default: []},
@@ -32,7 +32,7 @@ const passwordComplexity = require("joi-password.complexity");
             email: Joi.string().email().required(),
             fecha_nacimiento: Joi.string().required(),
             pais: Joi.string(). required(),
-            codigo_postal: Joi.string(). required(),
+            codigo_postal: Joi.Number(). required(),
             sexo: Joi.string().valid("Hombre", "Mujer", "Prefiero no decirlo").required()
         });
         return schema.validate(user)
