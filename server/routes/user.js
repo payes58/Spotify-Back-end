@@ -1,6 +1,9 @@
 const router = require("express").Router();
 const{User, validate} = require ("../models/user");
 const bcrypt = require ("bcrypt");
+const auth = require ("../middleware/auth");
+const validObjectId= require ("../middleware/validObjetId");
+const admin = require("../middleware/admin");
 
 
 //creacion del user
@@ -25,6 +28,32 @@ router.post("/", async(req, res) =>{
     res.status(200).send({data: newUser,message:"Cuenta creada exitosamente" })
 });
 
-//Select * all 
+//Select All 
+router.get("/",admin, async(req,res) =>{
+    const users = await User.find().select("-password -__v");
+    res.status (200).send({data:users})
+})
+
+//user por Id
+router.get("/:id", [validObjectId,auth],async(req, res) =>{
+    const user = await User.findById(req.params.id).select("-password-__v");
+    res.status(200).send({data:user})
+})
+
+//actualizar user por su id
+router.put("/:id", [validObjectId, auth], async(req, res) =>{
+    const user = await User.findByIdAndUpdate(
+        req.params.id,
+        {$set:req.body},
+        {new: true}
+    ).select("-password-__v");
+    res.status(200).send({data:user})
+})
+
+//eliminar user por su id
+router.delete("/:id",[validObjectId,admin],async(req,res) =>{
+    await User.findByIdAndDelete(req.params.id);
+    res.status(200).send({message:"Usuario eliminado exitosamente"})
+})
 
 module.exports = router;

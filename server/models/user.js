@@ -35,6 +35,7 @@ const passwordComplexity = require("joi-password-complexity");
             pais: Joi.string(). required(),
             codigo_postal: Joi.string(). required(),
             sexo: Joi.string().valid("Hombre", "Mujer", "Prefiero no decirlo").required()
+            
         });
         return schema.validate(user)
     }

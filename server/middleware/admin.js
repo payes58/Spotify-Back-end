@@ -9,9 +9,9 @@ module.exports = (req, res, next) =>{
             if(error){
                 return res.status(400).send({messagge:"Token no valido"})
             }else{
-                if(!validToken.isAdmin)
-                    return res.status(403).send({Message:"No tienes acceso a este contenido"});
-                req.user = validToken;
+                if(validToken.isAdmin)
+                    return res.status(403).send({messagge:"no tienes acceso a este contenido"});
+                req.user= validToken;
                 next();
             }
         }) 
