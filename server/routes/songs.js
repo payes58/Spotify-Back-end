@@ -4,12 +4,11 @@ const {Song, validate} = require("../models/song");
 const auth = require("../middleware/auth");
 const admin = require ("../middleware/admin");
 const validObjectId = require("../middleware/validObjetId");
-const { valid } = require("joi");
 
 // Crear cancion
-router.post("/", admin , async (req, res) =>{
+router.post("/",admin ,async (req, res) =>{
     const {error} = validate(req.body);
-    if(error) return res.status(400). send({message: error.details[0].message});
+    if(error) return res.status(400).send({message: "prueba"});
 
     const song= await Song(req.body).save();
     res.status(201).send({data:song, message: "Cancion creada con exito"});
@@ -34,14 +33,14 @@ router.delete("/:id",[validObjectId, admin], async(req, res) =>{
 });
 
 //Canciones favoritas
-router.put("/like/:id", [validObjectIdm,auth], async (req, res) =>{
+router.put("/like/:id", [validObjectId,auth], async (req, res) =>{
     let resMessage="";
-    const song = await Song.findById(req,params.id);
+    const song = await Song.findById(req.params.id);
     if(!song) return res.status(400).send({message:"La cancion no existe"});
 
     const user = await User.findById(req.user._id);
     const index = user.likedSongs.indexOf(song._id);
-    if(index === -1){
+    if(index == -1){
         user.likedSongs.push(song._id);
         resMessage= "Añadido a Favoritos"
     }else{

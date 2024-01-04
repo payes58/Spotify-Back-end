@@ -11,11 +11,11 @@ const songSchema = new mongoose.Schema({
 
 const validate =(song)=> {
     const schema = Joi.object({
-        titulo_cancion: Joi.string.required(),
-        numero_reproducciones: Joi.string.required(),
-        duracion: Joi.Number.required(),
-        autor: Joi.string.required(),
-        imagen: Joi.string.required(),
+        titulo_cancion:  Joi.string(). required(),
+        numero_reproducciones:  Joi.string(). required(),
+        duracion: Joi.string(). required(),
+        autor:  Joi.string(). required(),
+        imagen:  Joi.string(). required(),
     })
     return schema.validate(song);
 }
