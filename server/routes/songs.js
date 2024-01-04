@@ -4,6 +4,7 @@ const {Song, validate} = require("../models/song");
 const auth = require("../middleware/auth");
 const admin = require ("../middleware/admin");
 const validObjectId = require("../middleware/validObjetId");
+const { valid } = require("joi");
 
 // Crear cancion
 router.post("/", admin , async (req, res) =>{
@@ -33,4 +34,29 @@ router.delete("/:id",[validObjectId, admin], async(req, res) =>{
 });
 
 //Canciones favoritas
-router.put("/like/:id")
+router.put("/like/:id", [validObjectIdm,auth], async (req, res) =>{
+    let resMessage="";
+    const song = await Song.findById(req,params.id);
+    if(!song) return res.status(400).send({message:"La cancion no existe"});
+
+    const user = await User.findById(req.user._id);
+    const index = user.likedSongs.indexOf(song._id);
+    if(index === -1){
+        user.likedSongs.push(song._id);
+        resMessage= "Añadido a Favoritos"
+    }else{
+        user.likedSongs.splice(index,1);
+        resMessage = "Removido de Favoritos";
+    }
+    await user.save();
+    res.status(200).send({message: resMessage});
+})
+
+//todas las canciones favoritas
+router.get("/like", auth, async(req, res) =>{
+    const user = await User.findById(req.user._id);
+    const songs = await Song.find({_id: user.likedSongs});
+    res.status(200).send({data: songs});
+});
+
+module.exports = router;
