@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 const Joi = require("joi");
 
-const objectId = mongoose.Schema.Types.objectId;
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const playlistSchema = new mongoose.Schema({
     titulo_playlist:{type:String,required: true },
-    user:{type: objectId, ref:"user",required:true},
+    user:{type: ObjectId, ref:"user",required:true},
     desc:{type: String},
     numero_canciones:{type:Array,default:[] },
     fecha_creacion:{type:String,required: true },
@@ -16,7 +16,7 @@ const playlistSchema = new mongoose.Schema({
 });
 
 const validate =(playlist) => {
-    const schema = Joi.objet({
+    const schema = Joi.object({
         titulo_playlist: Joi.string.required(),
         user: Joi.string.required(),
         desc: Joi.string.allow(""),

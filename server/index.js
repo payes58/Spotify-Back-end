@@ -18,7 +18,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/login", authRoutes);
 app.use("/api/songs", songRoutes);
 app.use("/api/playlist", playlistRoutes);
-app.use("/api/".searchRoutes);
+app.use("/api/", searchRoutes);
 
 const port = process.env.PORT || 8080;
 app.listen(port, console.log(`Listening on port ${port}...`))

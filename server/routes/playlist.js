@@ -12,7 +12,7 @@ router.post("/", auth, async(req,res) =>{
     if(error) return res.status(400).send({message:error.details[0].message});
 
     const user = await User.findById(req.user._id);
-    const playlist = await Playlist({...req.vody, user: user._id}).save();
+    const playlist = await Playlist({...req.body, user: user._id}).save();
     user.playlist.push(playlist._id);
     await user.save();
 
@@ -22,13 +22,13 @@ router.post("/", auth, async(req,res) =>{
 //editar playlist por id
 
 router.put("/edit/:id",[validObjectId, auth], async(req, res) =>{
-    const shcema = Joi.object({
-        name: Joi.string(). required(),
-        desc: Joi.string(). required(),
-        img: Joi.string(). required(),
+    const schema = Joi.object({
+        name: Joi.string().required(),
+        desc: Joi.string().allow(""),
+        img: Joi.string().allow(""),
     });
-    const{error} = schema.validate(req.body);
-    if(error) return res.status(400).send({massage: error.detail[0]. message});
+    const {error} = schema.validate(req.body);
+    if(error) return res.status(400).send({massage: error.details[0]. message});
 
     const playlist = await Playlist.findById(req.params.id);
     if(!playlist) return res.status(404).send({message:"La playlist no fue encontrada"});
@@ -132,4 +132,4 @@ router.delete("/:id",[validObjectId, auth], async(req, res)=>{
         await playlist.remove();
         res.status(200).send({message: "Borrado de libreria"})
 })
-module.exports = router();
+module.exports = router;
