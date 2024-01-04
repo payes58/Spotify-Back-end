@@ -33,4 +33,4 @@ router.delete("/:id",[validObjectId, admin], async(req, res) =>{
 });
 
 //Canciones favoritas
-
+router.put("/like/:id")
