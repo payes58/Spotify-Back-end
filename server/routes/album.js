@@ -4,12 +4,9 @@ const {Song} = require("../models/song");
 const {User} = require("../models/user");
 const auth = require("../middleware/auth");
 const validObjectId = require ("../middleware/validObjetId");
-const Joi = require ('joi');
-const admin = require("../middleware/admin");
+const Joi = require ('joi')
 
 //crear playlist
-
-//funciona todo bien que yo sepa
 router.post("/", auth, async (req, res) =>{
     const {error} = validate(res.body);
     if(error) return res.status(400).send({message: error.details[0].message})
@@ -19,14 +16,13 @@ router.post("/", auth, async (req, res) =>{
     user.playlist.push(playlist._id);
     await user.save();
 
-    res.status(201).send({message: "Playlist creada correctamente"});
+    res.status(201).send({data: playlist});
 })
 
 //editar por id
-//edita lo que uno quiera
 router.put("/edit/:id", [validObjectId, auth], async(req, res) =>{
     const schema = Joi.object({
-        titulo_playlist: Joi.string().required(),
+        name: Joi.string().required(),
         desc: Joi.string().allow(""),
         img: Joi.string().allow(""),
     });
@@ -40,7 +36,7 @@ router.put("/edit/:id", [validObjectId, auth], async(req, res) =>{
     if(!user._id.equals(playlist.user))
     return res.status(403).send({message:"El usuario no tiene acceso a editar"});
 
-    playlist.titulo_playlist = req.body.titulo_playlist;
+    playlist.name = req.body.name;
     playlist.desc = req.body.desc;
     playlist.img = req.body.img;
     await playlist.save();
@@ -49,7 +45,6 @@ router.put("/edit/:id", [validObjectId, auth], async(req, res) =>{
 })
 
 //añadir cancion a la playlist
-//no puedo añadir cancion, me da error en el "indexOf" trate de solucionarlo pero el tiempo me comia
 router.put("/add-song", auth, async(req,res) =>{
     const schema = Joi.object({
         playlistId: Joi.string().required(),
@@ -72,7 +67,6 @@ router.put("/add-song", auth, async(req,res) =>{
 });
 
 //quitar cancion de playlist
-//mismo error que agregar canciones, trate de solucionar pero el tiempo no me daba
 router.put("/remove-song", auth, async(req,res) =>{
     const schema = Joi.object({
         playlistId: Joi.string().required(),
@@ -92,16 +86,14 @@ router.put("/remove-song", auth, async(req,res) =>{
     res.status(200).send({data: playlist,message:"Removido de la playlist"})
 })
 
-//playlist favoritas
-//error en objectid 
-router.get("/favourite" , auth, async(req, res) =>{
+//canciones favoritas
+router.get("/favorite" , auth, async(req, res) =>{
     const user = await User.findById(req.user._id);
     const playlist = await Playlist.find({_id: user.playlist});
     res.status(200).send({data:playlist});
 });
 
 //playlist por id
-//funciona bien
 router.get("/:id" , [validObjectId, auth], async (req,res) =>{
     const playlist = await Playlist.findById(req.params.id);
     if(!playlist) return res.status(404).send("no encontrado");
@@ -111,22 +103,23 @@ router.get("/:id" , [validObjectId, auth], async (req,res) =>{
 })
 
 //todas las playlist
-//funciona bien
 router.get("/", auth, async(req,res) =>{
     const playlist = await Playlist.find();
     res.status(200).send({data:playlist});
 })
 
 //eliminar por id
-//funciona si no mal recuerdo
-router.delete("/:id",[validObjectId, admin], async(req, res ) =>{
+router.delete("/:id",[validObjectId, auth], async(req, res ) =>{
     const user = await User.findById(req.user._id);
-    const playlist = await Playlist.findByIdAndDelete(req.params.id);
+    const playlist = await Playlist.findById(req.params.id);
 
     if(!user._id.equals(playlist.user))
         return res.status(403).send({message:"El usuario no tiene acceso para eliminar"});
 
+    const index = user.playlist.indexOf(req.params.id);
+    user.playlist.splice(index,1);
     await user.save();
+    await playlist.remove();
     res.status(200).send({message:"Removido de la libreria"});
 });
 

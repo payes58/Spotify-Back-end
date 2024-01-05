@@ -8,7 +8,7 @@ const validObjectId = require("../middleware/validObjetId");
 // Crear cancion
 router.post("/",admin ,async (req, res) =>{
     const {error} = validate(req.body);
-    if(error) return res.status(400).send({message: "prueba"});
+    if(error) return res.status(400).send({message: "error"});
 
     const song= await Song(req.body).save();
     res.status(201).send({data:song, message: "Cancion creada con exito"});
