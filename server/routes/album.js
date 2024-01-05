@@ -7,7 +7,7 @@ const validObjectId = require ("../middleware/validObjetId");
 const Joi = require ('joi');
 
 //crear album
-//funciona todo bien que yo sepa
+
 router.post("/", authArt, async (req, res) =>{
     const {error} = validate(res.body);
     if(error) return res.status(400).send({message: error.details[0].message})
@@ -20,7 +20,7 @@ router.post("/", authArt, async (req, res) =>{
 })
 
 //editar por id
-//edita lo que uno quiera
+
 router.put("/edit/:id", [validObjectId, authArt], async(req, res) =>{
     const schema = Joi.object({
         titulo_album: Joi.string().required(),
@@ -45,7 +45,7 @@ router.put("/edit/:id", [validObjectId, authArt], async(req, res) =>{
     res.status(200).send({message:"Editado exitosamente"});
 })
 //añadir cancion al album
-//no puedo añadir cancion, me da error en el "indexOf" trate de solucionarlo pero el tiempo me comia
+
 router.put("/add-song", authArt, async(req,res) =>{
     const schema = Joi.object({
         albumId: Joi.string().required(),
@@ -67,7 +67,7 @@ router.put("/add-song", authArt, async(req,res) =>{
     res.status(200).send({data:album, message:"Añadido al album"});
 });
 //borrar canciones de album
-//mismo error que borrar canciones de album, indexOf
+
 router.put("/remove-song", authArt, async(req,res) =>{
     const schema = Joi.object({
         albumId: Joi.string().required(),
@@ -88,7 +88,7 @@ router.put("/remove-song", authArt, async(req,res) =>{
 })
 
 //albums favoritos
-//error en objectId 
+
 router.get("/favourite" , authArt, async(req, res) =>{
     const user = await User.findById(req.user._id);
     const album = await Album.find({_id: user.album});
@@ -96,7 +96,7 @@ router.get("/favourite" , authArt, async(req, res) =>{
 });
 
 //album por id
-//funciona bien
+
 router.get("/:id" , [validObjectId, authArt], async (req,res) =>{
     const album = await Album.findById(req.params.id);
     if(!album) return res.status(404).send("no encontrado");
@@ -106,14 +106,14 @@ router.get("/:id" , [validObjectId, authArt], async (req,res) =>{
 })
 
 //todas las album
-//funciona bien
+
 router.get("/", authArt, async(req,res) =>{
     const album = await Album.find();
     res.status(200).send({data:album});
 })
 
 //eliminar por id
-//funciona bien si no mal recuerdo
+
 router.delete("/:id",[validObjectId, authArt], async(req, res ) =>{
     const user = await User.findById(req.user._id);
     const album = await Album.findByIdAndDelete(req.params.id);

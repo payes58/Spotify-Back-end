@@ -9,7 +9,6 @@ const admin = require("../middleware/admin");
 
 //crear playlist
 
-//funciona todo bien que yo sepa
 router.post("/", auth, async (req, res) =>{
     const {error} = validate(res.body);
     if(error) return res.status(400).send({message: error.details[0].message})
@@ -22,7 +21,7 @@ router.post("/", auth, async (req, res) =>{
 })
 
 //editar por id
-//edita lo que uno quiera
+
 router.put("/edit/:id", [validObjectId, auth], async(req, res) =>{
     const schema = Joi.object({
         titulo_playlist: Joi.string().required(),
@@ -48,7 +47,7 @@ router.put("/edit/:id", [validObjectId, auth], async(req, res) =>{
 })
 
 //añadir cancion a la playlist
-//no puedo añadir cancion, me da error en el "indexOf" trate de solucionarlo pero el tiempo me comia
+
 router.put("/add-song", auth, async(req,res) =>{
     const schema = Joi.object({
         playlistId: Joi.string().required(),
@@ -71,7 +70,7 @@ router.put("/add-song", auth, async(req,res) =>{
 });
 
 //quitar cancion de playlist
-//mismo error que agregar canciones, trate de solucionar pero el tiempo no me daba
+
 router.put("/remove-song", auth, async(req,res) =>{
     const schema = Joi.object({
         playlistId: Joi.string().required(),
@@ -92,7 +91,7 @@ router.put("/remove-song", auth, async(req,res) =>{
 })
 
 //playlist favoritas
-//error en objectid 
+
 router.get("/favourite" , auth, async(req, res) =>{
     const user = await User.findById(req.user._id);
     const playlist = await Playlist.find({_id: user.playlist});
@@ -100,7 +99,7 @@ router.get("/favourite" , auth, async(req, res) =>{
 });
 
 //playlist por id
-//funciona bien
+
 router.get("/:id" , [validObjectId, auth], async (req,res) =>{
     const playlist = await Playlist.findById(req.params.id);
     if(!playlist) return res.status(404).send("no encontrado");
@@ -110,14 +109,14 @@ router.get("/:id" , [validObjectId, auth], async (req,res) =>{
 })
 
 //todas las playlist
-//funciona bien
+
 router.get("/", auth, async(req,res) =>{
     const playlist = await Playlist.find();
     res.status(200).send({data:playlist});
 })
 
 //eliminar por id
-//funciona si no mal recuerdo
+
 router.delete("/:id",[validObjectId, admin], async(req, res ) =>{
     const user = await User.findById(req.user._id);
     const playlist = await Playlist.findByIdAndDelete(req.params.id);
