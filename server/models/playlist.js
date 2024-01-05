@@ -10,9 +10,6 @@ const playlistSchema = new mongoose.Schema({
     numero_canciones:{type:[String], default: []},
     canciones:{type:Array,default:[] },
     fecha_creacion:{type:String,required: true },
-    //Eliminada:{type:Boolean,default: false },
-    //fecha_eliminacion:{type:String,required: true },
-    //es_compartida:{type:String,required: true },
     img:{type: String}
 });
 
@@ -24,9 +21,6 @@ const validate =(playlist) => {
         numero_canciones: Joi.string().required(),
         canciones:Joi.string().required(),
         fecha_creacion: Joi.string().required(),
-        //Eliminada: Joi.string.required(),
-        //fecha_eliminacion: Joi.string.required(),
-        //es_compartida: Joi.string.required(),
         imagen: Joi.string().required(),
     });
     return schema.validate(playlist)

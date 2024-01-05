@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const{Artist, validate} = require ("../models/artist");
-const auth = require ("../middleware/auth");
+const bcrypt = require ("bcrypt");
+const authArt = require ("../middleware/authArtist");
 const validObjectId= require ("../middleware/validObjetId");
 const admin = require("../middleware/admin");
 
@@ -13,7 +14,16 @@ router.post("/", async(req, res) =>{
     const artist = await Artist.findOne({nombre: req.body.nombre});
     if(artist)
     return res.status(403).send({message:"Este artista ya existe dentro de la base"})
-    await Artist(req.body).save();
+    const salt = await bcrypt.genSalt(Number(process.env.SALT));
+    const hashPassword = await bcrypt.hash(req.body.password, salt);
+    let newArtist = await new Artist({
+        ...req.body,
+        password: hashPassword
+    }).save();
+
+    newArtist.password = undefined
+    newArtist.__v = undefined;
+
     res.status(200).send({message:"Artista creado exitosamente" })
 });
 
@@ -24,13 +34,13 @@ router.get("/",admin, async(req,res) =>{
 })
 
 //artista por Id
-router.get("/:id", [validObjectId,auth],async(req, res) =>{
+router.get("/:id", [validObjectId,authArt],async(req, res) =>{
     const artist = await Artist.findById(req.params.id).select("-password-__v");
     res.status(200).send({data:artist})
 })
 
 //actualizar artista por su id
-router.put("/:id", [validObjectId, auth], async(req, res) =>{
+router.put("/:id", [validObjectId, authArt], async(req, res) =>{
     const artist = await Artist.findByIdAndUpdate(
         req.params.id,
         {$set:req.body},

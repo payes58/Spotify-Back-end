@@ -1,125 +1,127 @@
 const router = require("express").Router();
-const {Playlist, validate} = require ("../models/playlist");
+const {Album, validate} = require ("../models/album");
 const {Song} = require("../models/song");
-const {User} = require("../models/user");
-const auth = require("../middleware/auth");
+const {Artist} = require("../models/artist");
+const authArt = require("../middleware/authArtist");
 const validObjectId = require ("../middleware/validObjetId");
-const Joi = require ('joi')
+const Joi = require ('joi');
 
-//crear playlist
-router.post("/", auth, async (req, res) =>{
+//crear album
+//funciona todo bien que yo sepa
+router.post("/", authArt, async (req, res) =>{
     const {error} = validate(res.body);
     if(error) return res.status(400).send({message: error.details[0].message})
+    const artist = await Artist.findById(req.artist._id);
+    const album = await Album({...req.body,artist:artist._id}).save();
+    artist.album.push(album._id);
+    await artist.save();
 
-    const user = await User.findById(req.user._id);
-    const playlist = await Playlist({...req.body,user:user._id}).save();
-    user.playlist.push(playlist._id);
-    await user.save();
-
-    res.status(201).send({data: playlist});
+    res.status(201).send({message: "Album creado correctamente"});
 })
 
 //editar por id
-router.put("/edit/:id", [validObjectId, auth], async(req, res) =>{
+//edita lo que uno quiera
+router.put("/edit/:id", [validObjectId, authArt], async(req, res) =>{
     const schema = Joi.object({
-        name: Joi.string().required(),
-        desc: Joi.string().allow(""),
-        img: Joi.string().allow(""),
+        titulo_album: Joi.string().required(),
+        año: Joi.string().allow(""),
+        canciones: Joi.string().allow(""),
     });
     const {error} = schema.validate(req.body);
     if(error) return res.status(400).send({message:error.details[0].message});
 
-    const playlist = await Playlist.findById(req.params.id);
-    if(!playlist) return res.status(404).send({message :"Playlist no encontrada"});
+    const album = await Album.findById(req.params.id);
+    if(!album) return res.status(404).send({message :"Playlist no encontrada"});
 
     const user = await User.findById(req.user._id);
-    if(!user._id.equals(playlist.user))
+    if(!user._id.equals(album.user))
     return res.status(403).send({message:"El usuario no tiene acceso a editar"});
 
-    playlist.name = req.body.name;
-    playlist.desc = req.body.desc;
-    playlist.img = req.body.img;
-    await playlist.save();
+    album.titulo_album = req.body.titulo_album;
+    album.año = req.body.año;
+    album.canciones = req.body.canciones;
+    await album.save();
 
     res.status(200).send({message:"Editado exitosamente"});
 })
-
-//añadir cancion a la playlist
-router.put("/add-song", auth, async(req,res) =>{
+//añadir cancion al album
+//no puedo añadir cancion, me da error en el "indexOf" trate de solucionarlo pero el tiempo me comia
+router.put("/add-song", authArt, async(req,res) =>{
     const schema = Joi.object({
-        playlistId: Joi.string().required(),
+        albumId: Joi.string().required(),
         songId: Joi.string().required(),
     });
     const{error} = schema.validate(req.body);
     if(error) return res.status(400).send({message: error.details[0].message});
 
     const user = await User.findById(req.user._id);
-    const playlist = await Playlist.findById(req.body.playlistId);
-    if(!user._id.equals(playlist.user))
+    const album = await Album.findById(req.body.albumId);
+    if(!user._id.equals(album.user))
         return res.status(403).send({message:"El usuario no tiene acceso para añadir"});
 
-    if(playlist.songs.indexOf(req.body.songId) ===-1){
-        playlist.songs.push(req.body.songId)
+    if(album.songs.indexOf(req.body.songId) ===-1){
+        album.songs.push(req.body.songId)
     };
 
-    await playlist.save();
-    res.status(200).send({data:playlist, message:"Añadido a la playlist"});
+    await album.save();
+    res.status(200).send({data:album, message:"Añadido al album"});
 });
-
-//quitar cancion de playlist
-router.put("/remove-song", auth, async(req,res) =>{
+//borrar canciones de album
+//mismo error que borrar canciones de album, indexOf
+router.put("/remove-song", authArt, async(req,res) =>{
     const schema = Joi.object({
-        playlistId: Joi.string().required(),
+        albumId: Joi.string().required(),
         songId: Joi.string().required(),
     });
     const{error} = schema.validate(req.body);
     if(error) return res.status(400).send({message: error.details[0].message});
 
     const user = await User.findById(req.user._id);
-    const playlist = await Playlist.findById(req.body.playlistId);
-    if(!user._id.equals(playlist.user))
+    const album = await Album.findById(req.body.albumId);
+    if(!user._id.equals(album.user))
         return res.status(403).send({message:"El usuario no tiene acceso para eliminar"});
 
-    const index = playlist.songs.indexOf(req.body.songId);
-    playlist.songs.splice(index,1);
-    await playlist.save();
-    res.status(200).send({data: playlist,message:"Removido de la playlist"})
+    const index = album.songs.indexOf(req.body.songId);
+    album.songs.splice(index,1);
+    await album.save();
+    res.status(200).send({data: album,message:"Removido del album"})
 })
 
-//canciones favoritas
-router.get("/favorite" , auth, async(req, res) =>{
+//albums favoritos
+//error en objectId 
+router.get("/favourite" , authArt, async(req, res) =>{
     const user = await User.findById(req.user._id);
-    const playlist = await Playlist.find({_id: user.playlist});
-    res.status(200).send({data:playlist});
+    const album = await Album.find({_id: user.album});
+    res.status(200).send({data:album});
 });
 
-//playlist por id
-router.get("/:id" , [validObjectId, auth], async (req,res) =>{
-    const playlist = await Playlist.findById(req.params.id);
-    if(!playlist) return res.status(404).send("no encontrado");
+//album por id
+//funciona bien
+router.get("/:id" , [validObjectId, authArt], async (req,res) =>{
+    const album = await Album.findById(req.params.id);
+    if(!album) return res.status(404).send("no encontrado");
 
-    const songs = await Song.find({_id:playlist.song});
-    res.status(200).send({data:{playlist,songs}});
+    const songs = await Song.find({_id:album.song});
+    res.status(200).send({data:{album,songs}});
 })
 
-//todas las playlist
-router.get("/", auth, async(req,res) =>{
-    const playlist = await Playlist.find();
-    res.status(200).send({data:playlist});
+//todas las album
+//funciona bien
+router.get("/", authArt, async(req,res) =>{
+    const album = await Album.find();
+    res.status(200).send({data:album});
 })
 
 //eliminar por id
-router.delete("/:id",[validObjectId, auth], async(req, res ) =>{
+//funciona bien si no mal recuerdo
+router.delete("/:id",[validObjectId, authArt], async(req, res ) =>{
     const user = await User.findById(req.user._id);
-    const playlist = await Playlist.findById(req.params.id);
+    const album = await Album.findByIdAndDelete(req.params.id);
 
-    if(!user._id.equals(playlist.user))
+    if(!user._id.equals(album.user))
         return res.status(403).send({message:"El usuario no tiene acceso para eliminar"});
 
-    const index = user.playlist.indexOf(req.params.id);
-    user.playlist.splice(index,1);
     await user.save();
-    await playlist.remove();
     res.status(200).send({message:"Removido de la libreria"});
 });
 

@@ -13,7 +13,6 @@ const admin = require("../middleware/admin");
 router.post("/", auth, async (req, res) =>{
     const {error} = validate(res.body);
     if(error) return res.status(400).send({message: error.details[0].message})
-
     const user = await User.findById(req.user._id);
     const playlist = await Playlist({...req.body,user:user._id}).save();
     user.playlist.push(playlist._id);
