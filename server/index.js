@@ -11,6 +11,7 @@ const playlistRoutes = require("./routes/playList");
 const artistRoutes = require("./routes/artist")
 const albumRoutes = require("./routes/album")
 const authArtRoutes = require("./routes/authArtist")
+const premiumRoutes = require("./routes/premiumU");
 const app = express();
 
 connection();
@@ -23,8 +24,9 @@ app.use("/api/songs", songRoutes);
 app.use("/api/", searchRoutes);
 app.use("/api/playlist", playlistRoutes);
 app.use("/api/artist", artistRoutes);
-app.use("/api/album", albumRoutes),
-app.use("/api/login/Art",authArtRoutes )
+app.use("/api/album", albumRoutes);
+app.use("/api/login/Art",authArtRoutes );
+app.use("/api/prem", premiumRoutes);
 
 const port = process.env.PORT || 8080;
 app.listen(port, console.log(`Listening on port ${port}...`))
