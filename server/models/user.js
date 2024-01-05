@@ -12,12 +12,7 @@ const passwordComplexity = require("joi-password-complexity");
         pais:{type:String,required: true },
         codigo_postal:{type:Number,required: true },
         sexo:{type:String,required: true },
-        fecha_renovacion:{type:[String], default: []},
-        num_tarjeta:{type:[String], default: []},
-        mes_final:{type:[String], default: []},
-        año_final:{type:[String], default: []},
-        codigo_seguridad:{type:[String], default: []},
-        username_paypal:{type:[String], default: []},
+        Premium_details:{type:[String], default: []},
         playlist:{type:[String], default: []},
         Admin:{type:Boolean,  default: false},
     })
