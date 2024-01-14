@@ -33,8 +33,8 @@ router.put("/edit/:id", [validObjectId, authArt], async(req, res) =>{
     const album = await Album.findById(req.params.id);
     if(!album) return res.status(404).send({message :"Playlist no encontrada"});
 
-    const user = await User.findById(req.user._id);
-    if(!user._id.equals(album.user))
+    const artist = await Artist.findById(req.artist._id);
+    if(!artist._id.equals(album.artist))
     return res.status(403).send({message:"El usuario no tiene acceso a editar"});
 
     album.titulo_album = req.body.titulo_album;
@@ -115,13 +115,13 @@ router.get("/", authArt, async(req,res) =>{
 //eliminar por id
 
 router.delete("/:id",[validObjectId, authArt], async(req, res ) =>{
-    const user = await User.findById(req.user._id);
+    const artist = await Artist.findById(req.artist._id);
     const album = await Album.findByIdAndDelete(req.params.id);
 
-    if(!user._id.equals(album.user))
+    if(!artist._id.equals(album.artist))
         return res.status(403).send({message:"El usuario no tiene acceso para eliminar"});
 
-    await user.save();
+    await artist.save();
     res.status(200).send({message:"Removido de la libreria"});
 });
 
